@@ -1,4 +1,3 @@
-lists.c 
 #include "ownshell.h"
 #include <stdlib.h>
 
