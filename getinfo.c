@@ -1,6 +1,9 @@
 #include "ownshell.h"
-#include <stdlib.h>
 
+/**
+ * clear_info - initializes info_t struct
+ * @info: struct address
+ */
 void clear_info(info_t *info)
 {
 	info->arg = NULL;
@@ -8,10 +11,14 @@ void clear_info(info_t *info)
 	info->path = NULL;
 	info->argc = 0;
 }
-
+/**
+ * set_info - initializes info_t struct
+ * @info: address of the structure
+ * @av: argument vector
+ */
 void set_info(info_t *info, char **av)
 {
-	int m = 0;
+	int i = 0;
 
 	info->fname = av[0];
 	if (info->arg)
@@ -26,15 +33,19 @@ void set_info(info_t *info, char **av)
 				info->argv[1] = NULL;
 			}
 		}
-		for (m = 0; info->argv && info->argv[m]; m++)
+		for (i = 0; info->argv && info->argv[i]; i++)
 			;
-		info->argc = m;
+		info->argc = i;
 
 		replace_alias(info);
 		replace_vars(info);
 	}
 }
-
+/**
+ * free_info - frees info_t struct fields
+ * @info: address of the structure
+ * @all: true if freeing all fields
+ */
 void free_info(info_t *info, int all)
 {
 	ffree(info->argv);
@@ -44,9 +55,12 @@ void free_info(info_t *info, int all)
 	{
 		if (!info->cmd_buf)
 			free(info->arg);
-		free_list(&(info->env));
-		free_list(&(info->history));
-		free_list(&(info->alias));
+		if (info->env)
+			free_list(&(info->env));
+		if (info->history)
+			free_list(&(info->history));
+		if (info->alias)
+			free_list(&(info->alias));
 		ffree(info->environ);
 		info->environ = NULL;
 		bfree((void **)info->cmd_buf);
