@@ -1,7 +1,10 @@
-#include "ownshell.h"
-#include <stdlib.h>
-#include <string.h>
+#include "shell.h"
 
+/**
+ * get_environ - returns the string array copy of our environ
+ * @info: structure arguments used to maintain constant prototype
+ * Return: Always 0
+ */
 char **get_environ(info_t *info)
 {
 	if (!info->environ || info->env_changed)
@@ -11,65 +14,71 @@ char **get_environ(info_t *info)
 	}
 	return (info->environ);
 }
-
+/**
+ * _unsetenv - Remove an environment variable
+ * @info: structure arguments used to maintain constant prototype
+ * Return: 1 on delete, 0 otherwise
+ * @var: the string env var property
+ */
 int _unsetenv(info_t *info, char *var)
 {
-	list_t branch = info->env;
-	size_t t = 0;
+	list_t *node = info->env;
+	size_t i = 0;
+	char *p;
 
-	if (!branch || !var)
+	if (!node || !var)
 		return (0);
-
-	while (branch)
+	while (node)
 	{
-		if (starts_with(branch->str, var) && branch->str[strlen(var)] == '=')
+		p = starts_with(node->str, var);
+		if (p && *p == '=')
 		{
-			info->env_changed = delete_branch_at_index(&(info->env), t);
-			t = 0;
-			branch = info->env;
+			info->env_changed = delete_node_at_index(&(info->env), i);
+			i = 0;
+			node = info->env;
+			continue;
 		}
-		else
-		{
-			branch = branch->next;
-			t++;
-		}
+		node = node->next;
+		i++;
 	}
-
 	return (info->env_changed);
 }
-
+/**
+ * _setenv - Initialize a new environment variable,
+ * or modify an existing one
+ * @info: structure arguments used to maintain constant prototype.
+ * @var: the string env var property
+ * @value: the string env var value
+ * Return: Always 0
+ */
 int _setenv(info_t *info, char *var, char *value)
 {
 	char *buf = NULL;
-	list_t *branch;
+	list_t *node;
 	char *p;
 
 	if (!var || !value)
 		return (0);
-
-	buf = malloc(strlen(var) + strlen(value) + 2);
+	buf = malloc(_strlen(var) + _strlen(value) + 2);
 	if (!buf)
 		return (1);
-
-	strcpy(buf, var);
-	strcat(buf, "=");
-	strcat(buf, value);
-
+	_strcpy(buf, var);
+	_strcat(buf, "=");
+	_strcat(buf, value);
 	node = info->env;
-	while (branch)
+	while (node)
 	{
-		p = starts_with(branch->str, var);
+		p = starts_with(node->str, var);
 		if (p && *p == '=')
 		{
-			free(branch->str);
-			branch->str = buf;
+			free(node->str);
+			node->str = buf;
 			info->env_changed = 1;
 			return (0);
 		}
-		branch = branch->next;
+		node = node->next;
 	}
-
-	add_branch_end(&(info->env), buf, 0);
+	add_node_end(&(info->env), buf, 0);
 	free(buf);
 	info->env_changed = 1;
 	return (0);
