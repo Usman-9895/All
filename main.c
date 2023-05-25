@@ -1,11 +1,14 @@
 #include "ownshell.h"
-#include <fcntl.h>
-#include <errno.h>
-#include <stdlib.h>
 
+/**
+ * main - entry point
+ * @ac: arg count
+ * @av: arg vector
+ * Return: 0 on success, 1 on error
+ */
 int main(int ac, char **av)
 {
-	info_t new[] = { INFO_INIT };
+	info_t info[] = { INFO_INIT };
 	int fd = 2;
 
 	asm ("mov %1, %0\n\t"
@@ -29,16 +32,13 @@ int main(int ac, char **av)
 				_eputchar(BUF_FLUSH);
 				exit(127);
 			}
-			return EXIT_FAILURE;
+			return (EXIT_FAILURE);
 		}
-		new[0].readfd = fd;
+		info->readfd = fd;
 	}
-
-	populate_env_list(new);
-	read_history(new);
-	hsh(new, av);
-
-	return EXIT_SUCCESS;
+	populate_env_list(info);
+	read_history(info);
+	hsh(info, av);
+	return (EXIT_SUCCESS);
 }
-
 
